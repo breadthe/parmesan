@@ -1,0 +1,51 @@
+name: Parmesan
+options:
+  bundleIdPrefix: com.breadthe
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # Sign to Run Locally (ad-hoc); no team, no notarization.
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+targets:
+  Parmesan:
+    type: application
+    platform: macOS
+    sources: [Parmesan]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.breadthe.Parmesan
+        GENERATE_INFOPLIST_FILE: YES
+        # Only adds the folder document type, so folders can be dropped on the Dock icon;
+        # everything else is generated from the INFOPLIST_KEY_* settings.
+        INFOPLIST_FILE: Parmesan/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: Parmesan
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Get Info asks Finder to open its Info window via Apple Events.
+        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Parmesan asks Finder to show the Get Info window for the selected item."
+        # The sandbox would block reading the whole disk.
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: NO
+  ParmesanTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [ParmesanTests]
+    dependencies:
+      - target: Parmesan
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Parmesan:
+    build:
+      targets:
+        Parmesan: all
+    test:
+      targets: [ParmesanTests]

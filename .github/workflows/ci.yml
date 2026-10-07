@@ -1,0 +1,19 @@
+# Builds and tests on a macOS runner (see specs.md → Distribution, CI). No signing.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Test
+        run: xcodebuild -scheme Parmesan -derivedDataPath build CODE_SIGN_IDENTITY=- test
