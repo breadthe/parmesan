@@ -88,7 +88,8 @@ struct SunburstGeometry: Sendable {
     func lineage(of index: Int) -> [Int] {
         var result: [Int] = []
         var current = index
-        while current >= 0 {
+        // `index` can be a hover left over from the previous geometry, until the next mouse move.
+        while segments.indices.contains(current) {
             result.append(current)
             current = segments[current].parent
         }
@@ -134,7 +135,8 @@ struct TreemapGeometry: Sendable {
     func lineage(of index: Int) -> [Int] {
         var result: [Int] = []
         var current = index
-        while current >= 0 {
+        // `index` can be a hover left over from the previous geometry, until the next mouse move.
+        while segments.indices.contains(current) {
             result.append(current)
             current = segments[current].parent
         }

@@ -12,6 +12,7 @@ struct ChartView: View {
     @State private var hovered: Int?
     @State private var isHoveringCenter = false
     @State private var hoverPoint: CGPoint = .zero
+    @State private var isPointerInside = false
 
     var body: some View {
         GeometryReader { geo in
@@ -32,8 +33,10 @@ struct ChartView: View {
                 switch phase {
                 case .active(let point):
                     hoverPoint = point
+                    isPointerInside = true
                     updateHover(point, size: geo.size)
                 case .ended:
+                    isPointerInside = false
                     hovered = nil
                     isHoveringCenter = false
                 }
@@ -42,6 +45,14 @@ struct ChartView: View {
             .contextMenu { ItemActionsMenu(model: model, ids: contextTargets) }
             .overlay(alignment: .topLeading) { tooltip(in: geo.size) }
             .onChange(of: geo.size, initial: true) { _, size in model.chartSize = size }
+            .onChange(of: model.chartRevision) {
+                // `hovered` indexes the old geometry: hit-test again where the pointer is.
+                if isPointerInside {
+                    updateHover(hoverPoint, size: geo.size)
+                } else {
+                    hovered = nil
+                }
+            }
         }
         .background(Color(nsColor: .controlBackgroundColor))
         .focusable()

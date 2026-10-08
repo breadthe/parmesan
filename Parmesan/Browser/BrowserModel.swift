@@ -102,6 +102,8 @@ final class BrowserModel {
     private var rowIDs: Set<NodeID> = []
     private(set) var sunburst: SunburstGeometry?
     private(set) var treemap: TreemapGeometry?
+    /// Bumped whenever a new chart geometry is shown, so views can drop segment indices into the old one.
+    private(set) var chartRevision = 0
     var chartSize: CGSize = .zero {
         didSet {
             if chartSize != oldValue, chartMode == .treemap { scheduleLayout() }
@@ -315,11 +317,13 @@ final class BrowserModel {
     private func apply(sunburst geometry: SunburstGeometry, generation: Int) {
         guard generation == layoutGeneration else { return }
         animatingFocusChange(from: sunburst?.focus) { sunburst = geometry }
+        chartRevision += 1
     }
 
     private func apply(treemap geometry: TreemapGeometry, generation: Int) {
         guard generation == layoutGeneration else { return }
         animatingFocusChange(from: treemap?.focus) { treemap = geometry }
+        chartRevision += 1
     }
 
     /// Drilling in or out zooms the chart (~250 ms) unless animations are off or Reduce Motion is on.
