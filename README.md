@@ -3,6 +3,12 @@
 </p>
 <h1 align="center">Parmesan</h1>
 
+---
+
+🚨 100% vibe-coded app. Free, but use at your own risk!
+
+---
+
 A native macOS disk usage analyzer. Parmesan scans a folder or a whole volume, works out how much space every folder and file takes, and shows it as a color-coded sunburst or treemap next to a sortable table. Drill into any folder, and jump straight to it in Finder or Terminal. It runs locally only: no App Store, no notarization, no Apple Developer account, no network access at all. Build it yourself.
 
 See the [user manual](MANUAL.md) for everything the app can do.
