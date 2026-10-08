@@ -141,14 +141,20 @@ struct ChartView: View {
         }
     }
 
-    private func info(_ index: Int) -> (node: NodeID, info: SegmentInfo)? {
+    /// A segment of whichever chart is showing.
+    private struct Segment {
+        var node: NodeID
+        var info: SegmentInfo
+    }
+
+    private func segment(_ index: Int) -> Segment? {
         switch model.chartMode {
         case .sunburst:
             guard let geometry = model.sunburst, geometry.segments.indices.contains(index) else { return nil }
-            return (geometry.segments[index].node, geometry.segments[index].info)
+            return Segment(node: geometry.segments[index].node, info: geometry.segments[index].info)
         case .treemap:
             guard let geometry = model.treemap, geometry.segments.indices.contains(index) else { return nil }
-            return (geometry.segments[index].node, geometry.segments[index].info)
+            return Segment(node: geometry.segments[index].node, info: geometry.segments[index].info)
         }
     }
 
@@ -159,12 +165,12 @@ struct ChartView: View {
         case .center:
             model.goUp()
         case .segment(let index):
-            guard let (node, info) = info(index) else { return }
+            guard let hit = segment(index) else { return }
             if clicks >= 2 {
                 // A "smaller items" group drills into the folder it belongs to.
-                model.activate(node)
-            } else if !info.isOther {
-                model.select(node, extending: modifiers.contains(.command) || modifiers.contains(.shift))
+                model.activate(hit.node)
+            } else if !hit.info.isOther {
+                model.select(hit.node, extending: modifiers.contains(.command) || modifiers.contains(.shift))
             }
         case .none:
             model.selection = []
@@ -173,17 +179,17 @@ struct ChartView: View {
 
     /// The hovered segment, or the whole selection if the hovered segment is part of it.
     private var contextTargets: [NodeID] {
-        guard let hovered, let (node, info) = info(hovered), !info.isOther else {
+        guard let hovered, let hit = segment(hovered), !hit.info.isOther else {
             return model.selection.sorted()
         }
-        return model.selection.contains(node) ? model.selection.sorted() : [node]
+        return model.selection.contains(hit.node) ? model.selection.sorted() : [hit.node]
     }
 
     // MARK: - Tooltip
 
     @ViewBuilder
     private func tooltip(in size: CGSize) -> some View {
-        if let hovered, let (_, info) = info(hovered) {
+        if let hovered, let info = segment(hovered)?.info {
             tooltipCard(name: info.name, size: info.size, shareOfFocus: info.shareOfFocus, items: info.items,
                         isDirectory: info.isDirectory || info.isOther, flags: info.flags, in: size)
         } else if isHoveringCenter, let focus = model.focusInfo {
