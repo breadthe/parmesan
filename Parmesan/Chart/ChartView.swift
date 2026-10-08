@@ -234,24 +234,68 @@ struct ChartView: View {
     // MARK: - VoiceOver
 
     /// Each segment as an element, e.g. "Developer, folder, 48.2 GB, 31 percent", with the item actions.
-    @ViewBuilder
+    /// Kept in small pieces: one big expression here is too much for older Swift compilers to type-check.
     private var accessibleSegments: some View {
-        let segments: [(Int, NodeID, SegmentInfo)] = switch model.chartMode {
-        case .sunburst: (model.sunburst?.segments ?? []).enumerated().map { ($0.offset, $0.element.node, $0.element.info) }
-        case .treemap: (model.treemap?.segments ?? []).enumerated().map { ($0.offset, $0.element.node, $0.element.info) }
+        ForEach(accessibleItems, id: \.index) { item in
+            SegmentAccessibilityElement(model: model, node: item.node, info: item.info)
         }
-        ForEach(segments.prefix(400), id: \.0) { _, node, info in
-            Rectangle()
-                .accessibilityLabel(model.accessibilityDescription(info))
-                .accessibilityAddTraits(model.selection.contains(node) && !info.isOther ? [.isButton, .isSelected] : .isButton)
-                .accessibilityAction { if !info.isOther { model.select(node) } }
-                .accessibilityAction(named: "Drill In") { model.activate(node) }
-                .accessibilityAction(named: "Reveal in Finder") { model.revealInFinder([node]) }
-                .accessibilityAction(named: "Open in Terminal") { model.openInTerminal([node]) }
-                .accessibilityAction(named: "Quick Look") { model.quickLook([node]) }
-                .accessibilityAction(named: "Get Info") { model.getInfo([node]) }
-                .accessibilityAction(named: "Copy Path") { model.copyPaths([node]) }
-                .accessibilityAction(named: "Move to Trash") { model.requestTrash([node]) }
+    }
+
+    private struct AccessibleItem {
+        var index: Int
+        var node: NodeID
+        var info: SegmentInfo
+    }
+
+    /// The segments of whichever chart is showing, capped so huge charts stay quick for VoiceOver.
+    private var accessibleItems: [AccessibleItem] {
+        let count: Int
+        switch model.chartMode {
+        case .sunburst: count = model.sunburst?.segments.count ?? 0
+        case .treemap: count = model.treemap?.segments.count ?? 0
         }
+        var items: [AccessibleItem] = []
+        for index in 0 ..< min(count, 400) {
+            if let hit = segment(index) {
+                items.append(AccessibleItem(index: index, node: hit.node, info: hit.info))
+            }
+        }
+        return items
+    }
+}
+
+/// One chart segment for VoiceOver: its description, selection state and the item actions.
+private struct SegmentAccessibilityElement: View {
+    let model: BrowserModel
+    let node: NodeID
+    let info: SegmentInfo
+
+    var body: some View {
+        let traits: AccessibilityTraits = isSelected ? [.isButton, .isSelected] : .isButton
+        Rectangle()
+            .accessibilityLabel(model.accessibilityDescription(info))
+            .accessibilityAddTraits(traits)
+            .accessibilityAction { if !info.isOther { model.select(node) } }
+            .modifier(ItemActions(model: model, node: node))
+    }
+
+    private var isSelected: Bool {
+        !info.isOther && model.selection.contains(node)
+    }
+}
+
+private struct ItemActions: ViewModifier {
+    let model: BrowserModel
+    let node: NodeID
+
+    func body(content: Content) -> some View {
+        content
+            .accessibilityAction(named: "Drill In") { model.activate(node) }
+            .accessibilityAction(named: "Reveal in Finder") { model.revealInFinder([node]) }
+            .accessibilityAction(named: "Open in Terminal") { model.openInTerminal([node]) }
+            .accessibilityAction(named: "Quick Look") { model.quickLook([node]) }
+            .accessibilityAction(named: "Get Info") { model.getInfo([node]) }
+            .accessibilityAction(named: "Copy Path") { model.copyPaths([node]) }
+            .accessibilityAction(named: "Move to Trash") { model.requestTrash([node]) }
     }
 }
