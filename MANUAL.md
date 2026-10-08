@@ -45,7 +45,7 @@ Click **Stop** in the status bar, or **Scan → Stop Scan** (⌘.). Everything r
 
 ### Rescanning
 
-- **Scan → Rescan Focus** (⇧⌘R) rescans only the folder you're looking at and splices the result into the tree.
+- **Scan → Rescan Focus** (⇧⌘R, or the toolbar's ↻ button next to the breadcrumb) rescans only the folder you're looking at and splices the result into the tree.
 - **Scan → Rescan All** (⌥⌘R) rescans the whole root and returns you to the same folder.
 
 ### Restricted folders
@@ -64,7 +64,7 @@ Folders Parmesan isn't allowed to read show as **Restricted**: gray hatching in 
 
 ## The main window
 
-- **Toolbar**: Back and Forward, Up to Parent, the **breadcrumb** (click any segment to jump to that folder; long paths collapse into a **…** menu), the **Sunburst / Treemap** switch, the **Color** menu, the **legend** (ⓘ), **Reveal in Finder**, **Open in Terminal**, **Largest Files**, and the **Filter** field.
+- **Toolbar**: Back and Forward, Up to Parent, the **breadcrumb** (click any segment to jump to that folder; long paths collapse into a **…** menu), **Rescan Focus** (↻), the **Sunburst / Treemap** switch, the **Color** menu, the **legend** (ⓘ), **Reveal in Finder**, **Open in Terminal**, **Largest Files**, and the **Filter** field.
 - **Chart and table** side by side. Drag the divider to resize. **View → Layout** switches to stacked (chart above the table) or the table alone.
 - **Status bar**: scan progress, then the totals, the time it took, the free space on the volume, and restricted folders.
 

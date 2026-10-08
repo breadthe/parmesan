@@ -60,6 +60,11 @@ struct BrowserView: View {
         ToolbarItem(placement: .navigation) {
             Breadcrumb(model: model)
         }
+        ToolbarItem(placement: .navigation) {
+            Button { model.rescanFocus() } label: { Label("Rescan Focus", systemImage: "arrow.clockwise") }
+                .disabled(model.isScanning)
+                .help("Rescan this folder (⇧⌘R)")
+        }
         ToolbarItemGroup(placement: .primaryAction) {
             Picker("Chart", selection: $model.chartMode) {
                 ForEach(ChartMode.allCases) { mode in
